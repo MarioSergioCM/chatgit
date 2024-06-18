@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+  <script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="nicknamePage">
+    <h2>Definir Apelido</h2>
+    <input type="text" id="nicknameInput" placeholder="Digite seu apelido">
+    <button onclick="setNickname()">Definir Apelido</button>
+  </div>
+
+  <div id="chatPage" style="display: none;">
+    <h2>Chat</h2>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Digite sua mensagem">
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+
+  <script>
+    const socket = io();
+
+    function setNickname() {
+      const nickname = document.getElementById('nicknameInput').value;
+      socket.emit('nickname', nickname, (error) => {
+        if (error) {
+          alert(error);
+        } else {
+          document.getElementById('nicknamePage').style.display = 'none';
+          document.getElementById('chatPage').style.display = 'block';
+        }
+      });
+    }
+
+    function sendMessage() {
+      const message = document.getElementById('messageInput').value;
+      socket.emit('newMessage', message);
+      document.getElementById('messageInput').value = ''; // Limpar o campo de mensagem após enviar
+    }
+
+    socket.on('previousMessages', (messages) => {
+      const messagesDiv = document.getElementById('messages');
+      messages.forEach((msg) => {
+        const messageElement = document.createElement('div');
+        messageElement.textContent = `${msg.nickname}: ${msg.message}`;
+        messagesDiv.appendChild(messageElement);
+      });
+    });
+
+    socket.on('newMessage', (data) => {
+      const messagesDiv = document.getElementById('messages');
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `${data.nickname}: ${data.message}`;
+      messagesDiv.appendChild(messageElement);
+    });
+
+    socket.on('redirectChat', () => {
+      document.getElementById('nicknamePage').style.display = 'none';
+      document.getElementById('chatPage').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
