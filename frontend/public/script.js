@@ -20,7 +20,7 @@ socket.on('newMessage', (msg) => {
 messageForm.addEventListener('submit', (event) => {
   event.preventDefault();
   const message = messageInput.value;
-  const user = 'User'; // Você pode alterar isso para o nome do usuário atual
+  const user = 'User'; 
   socket.emit('newMessage', { user, message });
   messageInput.value = '';
 });
